@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randevu Formu</title>
+</head>
+<body>
+  <h2>Randevu Formu</h2>
+  <form id="randevuForm">
+    <label>Ad: <input type="text" name="ad" required></label><br>
+    <label>Soyad: <input type="text" name="soyad" required></label><br>
+    <label>Baba Adı: <input type="text" name="baba"></label><br>
+    <label>FIN No: <input type="text" name="fin" required></label><br>
+    <label>Kendisi için mi?: <input type="checkbox" name="kendisi" checked></label><br>
+    <label>Tarih: <input type="date" name="tarih" required></label><br>
+    <label>Saat: <input type="time" name="saat" step="3600" required></label><br>
+    <button type="submit">Randevu Al</button>
+  </form>
+
+  <p id="sonuc"></p>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+    const supabaseUrl = 'http://162.19.244.210:8000'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiJ9.6DIyH1dEu__ICjnevUCAr02V3ymlvXMEXjbRRdIOHmQ'
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    const form = document.getElementById('randevuForm')
+    const sonuc = document.getElementById('sonuc')
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const data = new FormData(form)
+
+      const { error } = await supabase.from('randevular').insert([{
+        hasta_ad: data.get('ad'),
+        hasta_soyad: data.get('soyad'),
+        baba_adi: data.get('baba'),
+        fin: data.get('fin'),
+        kendisi_mi: data.get('kendisi') === 'on',
+        tarih: data.get('tarih'),
+        saat: data.get('saat'),
+      }])
+
+      if (error) {
+        sonuc.innerText = 'Hata: ' + error.message
+      } else {
+        sonuc.innerText = 'Randevunuz kaydedildi.'
+        form.reset()
+      }
+    })
+  </script>
+</body>
+</html>
